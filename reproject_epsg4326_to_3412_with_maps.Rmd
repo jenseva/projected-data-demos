@@ -1,0 +1,266 @@
+---
+title: "Convert Lat-Lon Coordinates to Polar Stereo"
+author: "g. Cutter and D. Kinzey"
+date: "11/8/2020"
+output: html_document
+---
+
+>notebook filename | reproject_epsg3412_to_4326.Rmd  
+history | Nov 2020: Converted to Rmd notebook, added ERRDAP lat-lon coordinate retrieval, J. Sevadjian. Feb 2020:  Created code snippet, simplified from: AMLR_GIS_in_R by RG. Cutter and D. Kinzey. Nov 2017: AMLR_GIS_in_R.R, G Cutter.
+
+This R code demonstrates converting latitude longitude coordinates to projected coordinates. We will access a dataset with coordinates of WGS84 lat, lon (EPSG:4326) and convert the coordinates to NSIDC Sea Ice Polar Stereographic South (EPSG: 3412).
+
+
+## Install required packages and load libraries
+
+The required packages are **maptools**, **rgdal**, and **sp**.
+mapdata is for coast/basemap for ggplot
+
+```{r setup_packages, message=FALSE, warning=FALSE}
+
+# Function to check if pkgs are installed, install missing pkgs, and load
+pkgTest <- function(x)
+{
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x,dep=TRUE,repos='http://cran.us.r-project.org')
+    if(!require(x,character.only = TRUE)) stop(x, " :Package not found")
+  }
+}
+
+list.of.packages <- c("maptools","rgdal","sp", "oce","ocedata", "mapdata", "ggplot2", "RColorBrewer", "ggspatial", "ncdf4", "lubridate","scales")
+
+# create list of installed packages
+pkges = installed.packages()[,"Package"]
+for (pk in list.of.packages) {
+  pkgTest(pk)
+}
+
+```
+
+
+## Get a list of lat/lon coordinates to work with
+
+We will use the BGC Argo float in-situ dataset on the PolarWatch ERDDAP server as our dataset. This dataset has latitude longitude coordinates.  
+
+* Request and download the coordinate variables from ERDDAP
+* The request url was generated using the dataset data access form online at https://polarwatch.noaa.gov/erddap/tabledap/SOCCOM_BGC_Argo_Snapshot_Archive.html
+* There are many additional file format options with ERDDAP, here we demonstrate working with csv output.
+
+```{r}
+
+url <- 'https://polarwatch.noaa.gov/erddap/tabledap/SOCCOM_BGC_Argo_Snapshot_Archive.csv0?latitude%2Clongitude&time%3E=2020-08-23T00%3A00%3A00Z&time%3C=2020-08-30T02%3A34%3A00Z'
+
+url2 <- 'https://polarwatch.noaa.gov/erddap/tabledap/SOCCOM_BGC_Argo_Snapshot_Archive.csv0?latitude%2Clongitude&time%3E=2020-08-23T00%3A00%3A00Z&time%3C=2020-08-30T02%3A34%3A00Z&latitude%3C=-50'
+download.file(url2, destfile='lat_lon_coordinates_input2.csv')
+
+```
+
+## Read in the Argo floats coordinates from the .csv file
+
+* Read in the .csv file from our working directory
+* Create a dataframe of coordinate points
+* Coordinates are locations of individual Argo float profiles
+
+```{r load_data }
+
+infn = "lat_lon_coordinates_input2.csv"
+
+indata = read.csv( infn, header=FALSE)
+
+```
+##  Create Spatial Dataframe
+
+Convert the Argo float coordinate points dataframe to a spatial object (spatial dataframe)
+
+```{r spatial_dataframe}
+
+latitude <- indata$V1
+longitude <- indata$V2
+
+# Longitude for this dataset goes from 0-360 but the transform library uses -180/180
+# Convert from 360 to -180/180
+lon180 <- ((longitude + 180) %% 360) - 180
+indata$V2 <- lon180
+
+dfcoords = cbind(lon180,latitude)      # coords in lon, lat order
+sppoints = SpatialPoints(coords = indata)
+spdf     = SpatialPointsDataFrame(coords = dfcoords, indata)
+
+# Verify initial coordinates of spatial dataframe
+coordsinit <- spdf@coords
+
+```
+
+## Reproject data from EPSG:4326 to EPSG:3412 
+
+* Define each of the coordinate reference systems (EPSG:3412 and EPSG:4326)
+* Transform the coordinates to Lat Lon with spTransform
+* Check new coordinates with coords and bbox
+
+```{r reproject, message=FALSE, warning=FALSE}
+# Define coordinate reference systems
+crslonglat       = CRSargs(CRS("+init=epsg:4326")) # order is longitude latitude in R CRS
+crsseaicepolster3412 = CRSargs(CRS("+init=epsg:3412"))
+
+# Set initial CRS of spatial dataframe
+proj4string(spdf) = CRS(crslonglat)
+lat_lon_bbox       = spdf@bbox
+print(lat_lon_bbox)
+
+# Check the CRS 
+crs_set = proj4string(spdf)
+
+# Converts from existing lat-lon crs to polar stereo (3412)
+spdfProjected = spTransform(spdf, CRS(crsseaicepolster3412))  
+crs_projected = proj4string(spdfProjected)
+
+coordsproj = spdfProjected@coords
+bbox       = spdfProjected@bbox
+print( bbox )
+```
+##Make a few different maps of the data
+*The first and second maps use the lat/lon coordinates, the third map uses the transformed coordinates created in the previous section
+
+### Map 1. Map Argo Float Locations on Polar Stereographic Map
+* This method uses latitude and longitude and the desired crs
+* oce does the projection for this map
+
+```{r map_oce}
+# define map extents
+ylim <- c(-79,-50)
+xlim <- c(-170,70)
+data("coastlineWorldMedium") # included in ocedata
+
+# set plot margins (bottom, left, top, right)
+par(mar=c(2, 6, 2, 6))
+
+## make a base
+mapPlot(coastlineWorldMedium, 
+        projection=crsseaicepolster3412,
+        col="lightgray", 
+        longitudelim=xlim, 
+        latitudelim=ylim,
+        main="Argo Float locations, lat/lon coordinates with oce map in EPSG:3412"
+        )
+
+## add points
+mapPoints(lon180, latitude, col = "red", pch = 20)
+```
+
+### Map 2.  Map Float Locations as lat lon with ggplot
+* This method uses only lat/lon cordinates
+```{r maps_ggplot_latlon}
+
+xlim <- c(-180,180)
+ylim <- c(-80,-45)
+coast <- map_data("worldHires", ylim = ylim, xlim = xlim)
+main="Argo Float locations, lat/lon coordinates with ggplot"  
+myplot<-ggplot(data = indata, aes(x = indata$V2, y = indata$V1, fill="red")) +
+  geom_polygon(data = coast, aes(x=long, y = lat, group = group), fill = "grey80") +
+  theme_bw(base_size = 15) + ylab("Latitude") + xlab("Longitude") +
+  coord_fixed(2.7,xlim = xlim, ylim = ylim) +
+  geom_point(data=indata, aes(x=indata$V2,y=indata$V1),size=2,shape=21,color="black") 
+  
+myplot
+```
+### Map 3. Plot the transformed EPSG:3412 coordinate points against a dataset that we know is EPSG:3412 
+*Get NSIDC CDR gridded data from PolarWatch ERDDDAP
+*Then plot it with the transformed points on top using ggplot
+
+```{r}
+# First get the lat/lon grid of the NSIDC dataset
+# NetCDF gridded data
+
+url <- 'https://polarwatch.noaa.gov/erddap/griddap/'
+grid_id <- 'nsidcCDRice_sh_grid'
+grid_urlcall <- paste0(url,grid_id,'.nc?latitude[(4337500.0):1:(-3937500.0)][(-3937500.0):1:(3937500.0)],longitude[(4337500.0):1:(-3937500.0)][(-3937500.0):1:(3937500.0)]')
+grid_nc <- download.file(grid_urlcall,destfile="grid.nc",mode='wb')
+
+# Read the lat/lon grid file
+gridFid <- nc_open('grid.nc')
+ygrid <- ncvar_get(gridFid, varid="ygrid")
+xgrid <- ncvar_get(gridFid, varid="xgrid")
+longitude <- ncvar_get(gridFid, varid="longitude")
+latitude <- ncvar_get(gridFid, varid="latitude")
+nc_close(gridFid)
+
+# Get projected sea ice data
+# request and read in corresponding ice data
+
+inds = which(latitude < 0, arr.ind=TRUE)
+rowrange <- range(inds[,1])
+colrange <- range(inds[,2])
+
+dataid <- 'nsidcCDRiceSQshmday'
+varnames <- c('seaice_conc_monthly_cdr')
+datestring <- '[(2017-11-01T00:00:00Z):1:(2017-12-30T00:00:00Z)]'
+coordstring <- paste0('[',colrange[1],':1:',colrange[2]-1,'][',rowrange[1],':1:',rowrange[2]-1,']')
+
+for (i in 1:length(varnames)) {
+   if (i == 1) {
+     urlcall <- paste0(url,dataid,'.nc?',varnames[i],datestring,coordstring)
+     } 
+   else {
+     urlcall <- paste0(urlcall,',',varnames[i],datestring,coordstring)
+     }
+}
+
+#Download the sea ice data NetCDF file  (two months of data)
+data_nc <- download.file(urlcall,destfile="data.nc",mode='wb')
+dataFid <- nc_open('data.nc')
+
+datatime <- ncvar_get(dataFid, varid="time")
+datatime <- as.Date(as.POSIXlt(datatime,origin='1970-01-01',tz= "GMT"))
+
+ygrid <- ncvar_get(dataFid, varid="ygrid")
+xgrid <- ncvar_get(dataFid, varid="xgrid")
+
+seaiceCDR <- ncvar_get(dataFid, varid=varnames[1])
+
+nc_close(dataFid)
+
+urlcall <- paste0(url,grid_id,'.nc?longitude',coordstring,',latitude',coordstring) 
+grid_subset <- download.file(urlcall,destfile="grid_subset.nc",mode='wb')
+
+# Read and format the subsetted grid data from the netCDF file  
+gridSubsetFid <- nc_open('grid_subset.nc')
+ygrid <- ncvar_get(gridSubsetFid, varid="ygrid")
+xgrid <- ncvar_get(gridSubsetFid, varid="xgrid")
+longitudeSubset <- ncvar_get(gridSubsetFid, varid="longitude")
+latitudeSubset <- ncvar_get(gridSubsetFid, varid="latitude")
+
+nc_close(gridSubsetFid)
+```
+
+## Plot the projected point data on top of the NSIDC sea ice data
+*Visually check the locations of the transformed coordinates
+```{r}
+plotdate <- '2017-12-16'
+idate = which((month(datatime)==month(plotdate)) & (year(datatime)==year(plotdate)))
+dims <- dim(longitude)
+icemap.df <- data.frame(Longitude=array(longitudeSubset,dims[1]*dims[2]),
+                        Latitude=array(latitudeSubset,dims[1]*dims[2]))
+icemap.df$Seaice <- array(seaiceCDR[,,idate],dims[1]*dims[2])
+dims <- dim(xgrid)
+icemap2 <- expand.grid(xgrid=xgrid,ygrid=ygrid)
+icemap2$Seaice <- array(seaiceCDR[,,idate],dim(xgrid)*dim(ygrid))
+icemap2$Seaice[icemap2$Seaice > 2] <- NA 
+
+df_projected <- as.data.frame(spdfProjected)
+
+
+main=" A ggplot of Argo Float locations in EPSG:3412\n      over top of gridded sea ice concentration"  
+myplot <- ggplot(data = icemap2, aes(x = xgrid, y = ygrid, fill=Seaice) ) + 
+       geom_tile() + 
+       coord_fixed(ratio = 1) + 
+       scale_y_continuous(labels = comma) + 
+       scale_x_continuous(labels = comma) +
+       scale_fill_gradientn(colours=rev(brewer.pal(n = 1, name = "Blues")),na.value="black") +
+       geom_point(data=df_projected, aes(x=lon180,y=latitude),inherit.aes = FALSE, size=2,shape=21,color="black") +
+       labs(title=main)
+
+myplot
+
+```
+
