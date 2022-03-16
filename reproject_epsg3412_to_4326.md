@@ -1,21 +1,19 @@
 # Convert Polar Stereographic Coordinates to Lat-Lon
 
-> notebook filename: reproject\_epsg3412\_to\_4326.Rmd  
-> history:  
-> \* Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate
-> retrieval, J. Sevadjian.  
-> \* Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R
-> by RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
+> Notebook filename: reproject\_epsg3412\_to\_4326.Rmd  
+> Authors: RG. Cutter, D. Kinzey, J. Sevadjian
 
 When working in the polar regions, we often need to integrate data that
 are in different projections. This example demonstrates how to use R to
 convert the projected coordinates of the NSIDC Sea Ice Concentration
 product to latitude-longitude coordinates.
 
-This R code demonstrates the following techniques: \* Accessing a
-dataset with polar stereographic coordinates from the PolarWatch ERDDAP
-server \* Converting projected coordinates to latitude-longitude
-coordinates (WGS84, EPSG:4326).
+This R code demonstrates the following techniques: 
+
+* Accessing a dataset with polar stereographic coordinates from the PolarWatch ERDDAP
+server  
+* Converting projected coordinates to latitude-longitude
+coordinates (WGS84, EPSG:4326).  
 
 ## Install required packages and load libraries
 
@@ -177,3 +175,9 @@ myplot
 ```
 
 ![](reproject_epsg3412_to_4326_files/figure-gfm/maps_ggplot_latlon-1.png)<!-- -->
+
+> History:  
+> * Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate
+> retrieval, J. Sevadjian.  
+> * Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R
+> by RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
