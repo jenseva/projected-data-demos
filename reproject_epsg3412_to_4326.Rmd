@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(echo = TRUE)
 
 ```
 # Convert Polar Stereographic Coordinates to Lat-Lon
@@ -158,7 +158,7 @@ myplot
 ```
 
 > History:   
-> * Mar 2022: Updated to latest version of CDR dataset, added .md output, J. Sevadjian  
-> * Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate retrieval, J. Sevadjian.   
-> * Feb 2020:  Created code snippet, simplified from: AMLR_GIS_in_R by RG. Cutter and D. Kinzey. Nov 2017: AMLR_GIS_in_R.R, G Cutter.
+> Mar 2022: Updated to latest version of CDR dataset, added .md output, J. Sevadjian  
+> Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate retrieval, J. Sevadjian.   
+> Feb 2020:  Created code snippet, simplified from: AMLR_GIS_in_R by RG. Cutter and D. Kinzey. Nov 2017: AMLR_GIS_in_R.R, G Cutter.
 
