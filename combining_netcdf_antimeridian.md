@@ -1,4 +1,4 @@
-# Combining two netcdf files at the antimeridian
+# Combining two NetCDF files at the antimeridian
 
 > File Name: combining_netcdf_antimeridian.md  
 > Date Created: Mar 2019  
