@@ -176,7 +176,9 @@ myplot
 
 ![](reproject_epsg3412_to_4326_files/figure-gfm/maps_ggplot_latlon-1.png)<!-- -->
 
-    > History:   
-    > * Mar 2022: Updated to latest version of CDR dataset, added .md output, J. Sevadjian
-    > * Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate retrieval, J. Sevadjian.   
-    > * Feb 2020:  Created code snippet, simplified from: AMLR_GIS_in_R by RG. Cutter and D. Kinzey. Nov 2017: AMLR_GIS_in_R.R, G Cutter.
+> History:  
+> \* Mar 2022: Updated to latest version of CDR dataset, added .md
+> output, J. Sevadjian \* Nov 2020: Converted to Rmd notebook, added
+> ERRDAP coordinate retrieval, J. Sevadjian.  
+> \* Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R
+> by RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
