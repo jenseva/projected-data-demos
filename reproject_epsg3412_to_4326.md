@@ -178,7 +178,8 @@ myplot
 
 > History:  
 > \* Mar 2022: Updated to latest version of CDR dataset, added .md
-> output, J. Sevadjian \* Nov 2020: Converted to Rmd notebook, added
-> ERRDAP coordinate retrieval, J. Sevadjian.  
+> output, J. Sevadjian  
+> \* Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate
+> retrieval, J. Sevadjian.  
 > \* Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R
 > by RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
