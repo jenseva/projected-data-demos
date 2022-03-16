@@ -1,8 +1,8 @@
 # Combining two netcdf files at the antimeridian
 
-> Date Created: Mar 2019
-> Owner: CoastWatch
-> Author: Dale Robinson, CoastWatch West Coast Node
+> Date Created: Mar 2019  
+> Owner: CoastWatch  
+> Author: Dale Robinson, CoastWatch West Coast Node  
 
 This example shows how to merge two NetCDF files that span the antimeridian into one NetCDF file. This is a common task when working with satellite data in the polar regions. Here we will demonstrate downloading ice concentration from ERDDAP in two sections and then show how to piece them together into one file. This is accomplished with the easy to use NetCDF Operator Tools which are command line programs for working with NetCDF files. 
 
