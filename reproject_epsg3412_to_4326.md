@@ -8,11 +8,12 @@ are in different projections. This example demonstrates how to use R to
 convert the projected coordinates of the NSIDC Sea Ice Concentration
 product to latitude-longitude coordinates.
 
-This R code demonstrates the following techniques:  
-\* Accessing a dataset with polar stereographic coordinates from the
-PolarWatch ERDDAP server  
-\* Converting projected coordinates to latitude-longitude coordinates
-(WGS84, EPSG:4326).
+This R code demonstrates the following techniques:
+
+  - Accessing a dataset with polar stereographic coordinates from the
+    PolarWatch ERDDAP server  
+  - Converting projected coordinates to latitude-longitude coordinates
+    (WGS84, EPSG:4326).
 
 ## Install required packages and load libraries
 
