@@ -1,10 +1,11 @@
 # Convert Polar Stereographic Coordinates to Lat-Lon
 
-> notebook filename | reproject\_epsg3412\_to\_4326.Rmd  
-> history | \* Nov 2020: Converted to Rmd notebook, added ERRDAP
-> coordinate retrieval, J. Sevadjian. \* Feb 2020: Created code snippet,
-> simplified from: AMLR\_GIS\_in\_R by RG. Cutter and D. Kinzey. Nov
-> 2017: AMLR\_GIS\_in\_R.R, G Cutter.
+> notebook filename: reproject\_epsg3412\_to\_4326.Rmd  
+> history:  
+> \* Nov 2020: Converted to Rmd notebook, added ERRDAP coordinate
+> retrieval, J. Sevadjian.  
+> \* Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R
+> by RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
 
 When working in the polar regions, we often need to integrate data that
 are in different projections. This example demonstrates how to use R to
@@ -18,7 +19,8 @@ coordinates (WGS84, EPSG:4326).
 
 ## Install required packages and load libraries
 
-The required packages are **maptools**, **rgdal**, and **sp**.
+The required packages are **maptools**, **rgdal**, **sp**, **mapdata**,
+and **ggplot2**.
 
 ``` r
 # Function to check if pkgs are installed, install missing pkgs, and load
@@ -43,8 +45,8 @@ for (pk in list.of.packages) {
 ## Create a list of polar projected coordinates to transform
 
 This example takes a list of polar projected coordinates and transforms
-them to lat-lon. We will use a projected dataset from the PolarWatch
-ERDDDAP to generate a coordinate list.
+them to lat-lon coordinates. We will use a projected dataset from the
+PolarWatch ERDDDAP to generate a polar coordinate list.
 
   - Download projected coordinates from the NSIDC NOAA Sea Ice
     Concentration CDR
