@@ -117,13 +117,12 @@ will create a ggplot map using the lat-lon float coordinates.
 xlim <- c(-180,180)
 ylim <- c(-80,-45)
 coast <- map_data("worldHires", ylim = ylim, xlim = xlim)
-main="Argo Float locations, Lat-Lon Coordinates with ggplot"  
 myplot<-ggplot(data = indata, aes(x = V2, y = V1)) +
   geom_polygon(data = coast, aes(x=long, y = lat, group = group), fill = "grey80") +
   theme_bw(base_size = 15) + ylab("Latitude") + xlab("Longitude") +
   coord_fixed(2.7,xlim = xlim, ylim = ylim) +
   geom_point(data=indata, aes(x=V2, y=V1), size=1, shape=21, color="blue") +
-  ggtitle(main)+
+  ggtitle("Argo Float locations, Lat-Lon Coordinates with ggplot") +
   theme(plot.title = element_text(hjust = 0.5))
   
 myplot
@@ -133,11 +132,13 @@ myplot
 
 ## Map the Argo Float Locations on a Polar Stereographic Map
 
-Next, let’s plot the same float location data again, with a polar
-stereographic view using the OCE package.
+To get a better sense of the float locations, let’s plot the same float
+location data again, this time with a polar stereographic view.
+
+  - This map is made using the OCE package
 
   - This plotting package allows us to specify the projection of the map
-    while still using lat-lon coordinates for the float locations.
+    while still using lat-lon coordinates for the float locations
 
 <!-- end list -->
 
@@ -214,12 +215,15 @@ print( bbox )
 
 ## Get polar projected sea ice satellite data from ERDDAP
 
-Here we use a preconfigured ERDDAP data request url to access the NOAA
-Sea Ice Concentration CDR dataset from ERDDAP. For more information
-about accessing this dataset from ERDDAP, including step-by-step
-examples of subsetting the dataset and moving between projected and
-lat-lon coordinates, see the “Accessing Projected Datasets” R tutorial
-in our course materials.
+Next we will download the sea ice satellite data from the PolarWatch
+ERDDAP. This dataset is in NSIDC Polar Stereographic South (EPSG:3412)
+projection. Here we use a preconfigured ERDDAP data request url to
+access the NOAA Sea Ice Concentration CDR dataset from ERDDAP.
+
+For more information about accessing this dataset from ERDDAP, including
+step-by-step examples of subsetting the dataset and moving between
+projected and lat-lon coordinates, see the “Accessing Projected
+Datasets” R tutorial in our course materials.
 <https://github.com/CoastWatch-WestCoast/r_code/blob/master/accessing_projected_datasets.md>
 
 ``` r
@@ -238,6 +242,10 @@ nc_close(sea_ice_dataFid)
 
 ## Plot the projected in-situ data with the NSIDC Sea Ice CDR
 
+Lastly, we will verify the placement of the transformed float locations
+by viewing them a polar projected map along side the satellite sea ice
+dataset.
+
   - Plot the projected Argo float point data on top of the NOAA sea ice
     concentration CDR data using ggplot
   - This map has projected coordinates as the axes
@@ -253,7 +261,7 @@ icemap2$Seaice[icemap2$Seaice > 2] <- NA
 
 df_projected <- as.data.frame(spdfProjected)
 
-main=" Polar Projected In-situ Argo Float locations\n aligned with the NOAA Sea Ice Concentration CDR Grid"  
+main=" Polar Projected In-situ Argo Float locations\n and the NOAA Sea Ice Concentration CDR"  
 myplot <- ggplot(data = icemap2, aes(x = xgrid, y = ygrid, fill=Seaice) ) + 
        geom_tile() + 
        coord_fixed(ratio = 1) + 
