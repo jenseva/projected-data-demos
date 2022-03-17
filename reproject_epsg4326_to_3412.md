@@ -1,6 +1,6 @@
 # Converting Latitude-Longitude Coordinates to Polar Stereographic
 
-> Notebook Filename: reproject\_epsg3412\_to\_4326.Rmd  
+> Notebook Filename: reproject\_epsg4326\_to\_3412.Rmd  
 > Authors: RG. Cutter, D. Kinzey, J. Sevadjian
 
 When working in the polar regions, we often need to integrate data that
@@ -54,7 +54,7 @@ ERDDAP server. This dataset has latitude-longitude coordinates (WGS84).
     access form online at
     <https://polarwatch.noaa.gov/erddap/tabledap/SOCCOM_BGC_Argo_Snapshot_Archive.html>
   - There are many additional file format options with ERDDAP, here we
-    demonstrate working with csv output.
+    demonstrate working with csv output
 
 <!-- end list -->
 
@@ -104,25 +104,14 @@ crslonglat       = CRSargs(CRS("+init=epsg:4326")) # order is longitude latitude
 crsseaicepolster3412 = CRSargs(CRS("+init=epsg:3412"))
 ```
 
-    ## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-    ## prefer_proj): Discarded ellps unknown in CRS definition: +proj=stere +lat_0=-90
-    ## +lat_ts=-70 +lon_0=0 +x_0=0 +y_0=0 +a=6378273 +b=6356889.449 +units=m +no_defs
-
-    ## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-    ## prefer_proj): Discarded datum unknown in CRS definition
-
-    ## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-    ## prefer_proj): Discarded ellps unknown in CRS definition: +proj=stere +lat_0=-90
-    ## +lat_ts=-70 +lon_0=0 +x_0=0 +y_0=0 +a=6378273 +b=6356889.449 +units=m +no_defs
-    ## +type=crs
-
-    ## Warning in showSRID(uprojargs, format = "PROJ", multiline = "NO", prefer_proj =
-    ## prefer_proj): Discarded datum unknown in CRS definition
-
 ## Map the Argo Float Locations with ggplot
 
-Here we will map the in-situ data locations using the lat-lon
-coordinates on a ggplot map
+To get a sense for the Argo float locations in latitude-longitude, we
+will create a ggplot map using the lat-lon float coordinates.
+
+  - This map uses latitude-longitude for the axes
+
+<!-- end list -->
 
 ``` r
 xlim <- c(-180,180)
@@ -144,9 +133,13 @@ myplot
 
 ## Map the Argo Float Locations on a Polar Stereographic Map
 
-Next, let’s plot the same float location data again using the OCE
-package. This plotting package allows us to specify the projection of
-the map while still using lat-lon coordinates for the float locations.
+Next, let’s plot the same float location data again, with a polar
+stereographic view using the OCE package.
+
+  - This plotting package allows us to specify the projection of the map
+    while still using lat-lon coordinates for the float locations.
+
+<!-- end list -->
 
 ``` r
 # define map extents
@@ -157,7 +150,7 @@ data("coastlineWorldMedium") # included in ocedata
 # set plot margins (bottom, left, top, right)
 par(mar=c(2, 6, 2, 6))
 
-## make a base
+# make a base
 mapPlot(coastlineWorldMedium, 
         projection=crsseaicepolster3412,
         col="lightgray", 
@@ -172,7 +165,7 @@ mapPoints(lon180, latitude, col = "blue", pch = 20)
 
 ![](reproject_epsg4326_to_3412_files/figure-gfm/map_oce-1.png)<!-- -->
 
-## Reproject the Argo float coordinates from latitude-longitude to polar stereographic
+## Transform the Argo float coordinates from latitude-longitude to polar stereographic
 
 We ultimately want to analyze the Argo float data in conjunction with a
 sea ice dataset that is in polar stereographic coordinates. So, next we
@@ -219,7 +212,7 @@ print( bbox )
     ## lon180   -4385774 3967157
     ## latitude -3924592 3401168
 
-## Get projected sea ice satellite data from ERDDAP
+## Get polar projected sea ice satellite data from ERDDAP
 
 Here we use a preconfigured ERDDAP data request url to access the NOAA
 Sea Ice Concentration CDR dataset from ERDDAP. For more information
@@ -245,8 +238,9 @@ nc_close(sea_ice_dataFid)
 
 ## Plot the projected in-situ data with the NSIDC Sea Ice CDR
 
-  - Plot the projected point data on top of the NOAA sea ice
-    concentration CDR data using ggplot  
+  - Plot the projected Argo float point data on top of the NOAA sea ice
+    concentration CDR data using ggplot
+  - This map has projected coordinates as the axes
   - Visually check the locations of the transformed coordinates
 
 <!-- end list -->
@@ -269,19 +263,16 @@ myplot <- ggplot(data = icemap2, aes(x = xgrid, y = ygrid, fill=Seaice) ) +
        geom_point(data=df_projected, aes(x=lon180, y=latitude),inherit.aes = FALSE, size=2,shape=21,color="black") +
        labs(title=main)+
     theme(plot.title = element_text(hjust = 0.5))
-```
 
-    ## Warning in brewer.pal(n = 1, name = "Blues"): minimal value for n is 3, returning requested palette with 3 different levels
-
-``` r
 myplot
 ```
 
-![](reproject_epsg4326_to_3412_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
-\> History:  
-Mar 2022: Updated satellite dataset to latest version of CDR. Simplified
-by removing subsetting projected data portion.  
-Nov 2020: Converted to Rmd notebook, added ERRDAP lat-lon coordinate
-retrieval, J. Sevadjian.  
-Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R by RG.
-Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
+![](reproject_epsg4326_to_3412_files/figure-gfm/plot_satellite_and_argo-1.png)<!-- -->
+
+> History:  
+> Mar 2022: Updated satellite dataset to latest version of CDR.
+> Simplified by removing subsetting projected data portion.  
+> Nov 2020: Converted to Rmd notebook, added ERRDAP lat-lon coordinate
+> retrieval, J. Sevadjian.  
+> Feb 2020: Created code snippet, simplified from: AMLR\_GIS\_in\_R by
+> RG. Cutter and D. Kinzey. Nov 2017: AMLR\_GIS\_in\_R.R, G Cutter.
